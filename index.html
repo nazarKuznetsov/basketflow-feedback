@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Фидбэк по BasketFlow</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f7f8;
+        --surface: #ffffff;
+        --surface-muted: #edf3f1;
+        --ink: #15201d;
+        --muted: #687670;
+        --line: #d8e2de;
+        --primary: #167761;
+        --primary-strong: #0f5949;
+        --primary-soft: #dff3ed;
+        --danger-soft: #fff0e8;
+        --shadow: 0 18px 60px rgba(21, 32, 29, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          linear-gradient(160deg, rgba(22, 119, 97, 0.13), transparent 34%),
+          linear-gradient(22deg, rgba(242, 186, 96, 0.18), transparent 42%),
+          var(--bg);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      .page {
+        width: min(960px, 100%);
+        margin: 0 auto;
+        padding: 28px 16px 40px;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .hero,
+      .form-panel,
+      .preview-panel {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(216, 226, 222, 0.9);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+
+      .hero {
+        margin-bottom: 18px;
+        padding: 24px;
+        border-radius: 18px;
+      }
+
+      .kicker {
+        margin: 0 0 8px;
+        color: var(--primary-strong);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        max-width: 780px;
+        font-size: clamp(2rem, 6vw, 3.75rem);
+        line-height: 0.96;
+      }
+
+      .intro {
+        max-width: 640px;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 1.02rem;
+      }
+
+      .form-panel,
+      .preview-panel {
+        border-radius: 16px;
+      }
+
+      .form-panel {
+        padding: 18px;
+      }
+
+      .question {
+        padding: 18px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .question:first-child {
+        padding-top: 0;
+      }
+
+      .question:last-of-type {
+        border-bottom: 0;
+      }
+
+      .question h2 {
+        margin-bottom: 12px;
+        font-size: 1rem;
+      }
+
+      .choice-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .choice {
+        display: flex;
+        min-height: 46px;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--surface);
+        color: var(--ink);
+        cursor: pointer;
+        transition:
+          border-color 140ms ease,
+          background 140ms ease,
+          transform 140ms ease;
+      }
+
+      .choice:hover {
+        border-color: rgba(22, 119, 97, 0.45);
+        background: var(--primary-soft);
+      }
+
+      .choice:active {
+        transform: scale(0.99);
+      }
+
+      .choice input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+        flex: 0 0 auto;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 112px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        color: var(--ink);
+        background: var(--surface);
+        outline: none;
+      }
+
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(22, 119, 97, 0.14);
+      }
+
+      .hint {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 16px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 12px;
+        padding: 0 16px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .button.primary {
+        background: var(--primary);
+        color: #ffffff;
+      }
+
+      .button.primary:hover {
+        background: var(--primary-strong);
+      }
+
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .button.secondary:hover {
+        background: var(--surface-muted);
+      }
+
+      .status {
+        min-height: 24px;
+        margin: 12px 0 0;
+        color: var(--primary-strong);
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+
+      .preview-panel {
+        position: sticky;
+        top: 16px;
+        padding: 18px;
+      }
+
+      .preview-panel h2 {
+        font-size: 1rem;
+      }
+
+      .preview {
+        min-height: 280px;
+        margin: 14px 0 0;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #f9fbfa;
+        color: #22312d;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 0.94rem;
+      }
+
+      .privacy-note {
+        margin: 14px 0 0;
+        padding: 12px;
+        border-radius: 12px;
+        background: var(--danger-soft);
+        color: #77523d;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 820px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-panel {
+          position: static;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .page {
+          padding: 16px 10px 28px;
+        }
+
+        .hero,
+        .form-panel,
+        .preview-panel {
+          border-radius: 14px;
+        }
+
+        .hero {
+          padding: 18px;
+        }
+
+        .choice-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero" aria-labelledby="page-title">
+        <p class="kicker">60 секунд после закупки</p>
+        <h1 id="page-title">Фидбэк по BasketFlow</h1>
+        <p class="intro">
+          Пять быстрых вопросов после нашей закупки. Можно честно и коротко:
+          мне важнее понять, где продукт реально помог, а где мешал.
+        </p>
+      </section>
+
+      <div class="shell">
+        <form class="form-panel" id="feedback-form">
+          <section class="question" data-question>
+            <h2>Ты бы использовал BasketFlow ещё раз?</h2>
+            <div class="choice-grid">
+              <label class="choice">
+                <input type="radio" name="reuse" value="Да" />
+                <span>Да</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="reuse" value="Скорее да" />
+                <span>Скорее да</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="reuse" value="Скорее нет" />
+                <span>Скорее нет</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="reuse" value="Нет" />
+                <span>Нет</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="question" data-question>
+            <h2>Ты бы сам создал комнату без меня рядом?</h2>
+            <div class="choice-grid">
+              <label class="choice">
+                <input type="radio" name="selfCreate" value="Да" />
+                <span>Да</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="selfCreate" value="Скорее да" />
+                <span>Скорее да</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="selfCreate" value="Скорее нет" />
+                <span>Скорее нет</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="selfCreate" value="Нет" />
+                <span>Нет</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="question" data-question>
+            <h2>Что было непонятно или лишнее?</h2>
+            <div class="choice-grid">
+              <label class="choice">
+                <input
+                  type="checkbox"
+                  name="confusing"
+                  value="Всё было понятно"
+                  data-exclusive="confusing"
+                />
+                <span>Всё было понятно</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="confusing" value="Вход по ссылке" />
+                <span>Вход по ссылке</span>
+              </label>
+              <label class="choice">
+                <input
+                  type="checkbox"
+                  name="confusing"
+                  value="Добавление товаров"
+                />
+                <span>Добавление товаров</span>
+              </label>
+              <label class="choice">
+                <input
+                  type="checkbox"
+                  name="confusing"
+                  value="Подтверждение корзины"
+                />
+                <span>Подтверждение корзины</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="confusing" value="Админка" />
+                <span>Админка</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="confusing" value="Финализация" />
+                <span>Финализация</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="confusing" value="Чек-лист" />
+                <span>Чек-лист</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="confusing" value="Другое" />
+                <span>Другое</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="question" data-question>
+            <h2>Где это пригодилось бы ещё?</h2>
+            <div class="choice-grid">
+              <label class="choice">
+                <input type="checkbox" name="scenarios" value="Вечеринка" />
+                <span>Вечеринка</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="scenarios" value="Пикник" />
+                <span>Пикник</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="scenarios" value="Поездка" />
+                <span>Поездка</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="scenarios" value="Общага/квартира" />
+                <span>Общага/квартира</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="scenarios" value="Офис" />
+                <span>Офис</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="scenarios" value="Закупка домой" />
+                <span>Закупка домой</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" name="scenarios" value="Другое" />
+                <span>Другое</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="question" data-question>
+            <h2>Что добавить или убрать, чтобы ты реально пользовался этим снова?</h2>
+            <textarea
+              name="improvement"
+              rows="4"
+              placeholder="Можно одним предложением: что бесило, чего не хватило или что было лишним."
+            ></textarea>
+            <p class="hint">Если всё норм, можно написать “ничего”.</p>
+          </section>
+
+          <div class="actions">
+            <button class="button primary" type="button" id="send-telegram">
+              Отправить в Telegram
+            </button>
+            <button class="button secondary" type="button" id="copy-answer">
+              Скопировать ответ
+            </button>
+          </div>
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <aside class="preview-panel" aria-labelledby="preview-title">
+          <h2 id="preview-title">Текст ответа</h2>
+          <div class="preview" id="preview"></div>
+          <p class="privacy-note">
+            Ответы нигде не сохраняются автоматически. Кнопка Telegram просто
+            открывает готовое сообщение, которое нужно отправить самому.
+          </p>
+        </aside>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        const emptyValue = "Не выбрано";
+
+        function values(form, name) {
+          return Array.from(form.querySelectorAll(`[name="${name}"]:checked`)).map(
+            (input) => input.value
+          );
+        }
+
+        function selectedValue(form, name) {
+          return form.querySelector(`[name="${name}"]:checked`)?.value || emptyValue;
+        }
+
+        function collectFeedback(form) {
+          return {
+            reuse: selectedValue(form, "reuse"),
+            selfCreate: selectedValue(form, "selfCreate"),
+            confusing: values(form, "confusing"),
+            scenarios: values(form, "scenarios"),
+            improvement: form.elements.improvement.value.trim()
+          };
+        }
+
+        function formatList(items) {
+          return items.length ? items.join(", ") : emptyValue;
+        }
+
+        function buildFeedbackMessage(data) {
+          return [
+            "Фидбэк по BasketFlow",
+            "",
+            `Использовал бы ещё раз: ${data.reuse || emptyValue}`,
+            `Создал бы комнату сам: ${data.selfCreate || emptyValue}`,
+            `Непонятно/лишнее: ${formatList(data.confusing || [])}`,
+            `Где пригодилось бы: ${formatList(data.scenarios || [])}`,
+            `Что улучшить: ${data.improvement || emptyValue}`
+          ].join("\n");
+        }
+
+        function buildTelegramShareUrl(message) {
+          const params = new URLSearchParams({ text: message });
+          return `https://t.me/share/url?${params.toString()}`;
+        }
+
+        function setStatus(message) {
+          const status = document.querySelector("#status");
+          if (status) {
+            status.textContent = message;
+          }
+        }
+
+        function wireExclusiveCheckboxes(form) {
+          form.addEventListener("change", (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLInputElement)) {
+              return;
+            }
+
+            if (target.dataset.exclusive && target.checked) {
+              form
+                .querySelectorAll(`[name="${target.name}"]`)
+                .forEach((input) => {
+                  if (input !== target) {
+                    input.checked = false;
+                  }
+                });
+              return;
+            }
+
+            const exclusive = form.querySelector(
+              `[name="${target.name}"][data-exclusive="${target.name}"]`
+            );
+            if (exclusive instanceof HTMLInputElement && target.checked) {
+              exclusive.checked = false;
+            }
+          });
+        }
+
+        function initialize() {
+          const form = document.querySelector("#feedback-form");
+          const preview = document.querySelector("#preview");
+          const sendButton = document.querySelector("#send-telegram");
+          const copyButton = document.querySelector("#copy-answer");
+
+          if (!form || !preview || !sendButton || !copyButton) {
+            return;
+          }
+
+          function currentMessage() {
+            return buildFeedbackMessage(collectFeedback(form));
+          }
+
+          function updatePreview() {
+            preview.textContent = currentMessage();
+          }
+
+          wireExclusiveCheckboxes(form);
+          form.addEventListener("input", updatePreview);
+          form.addEventListener("change", updatePreview);
+
+          sendButton.addEventListener("click", () => {
+            updatePreview();
+            window.open(buildTelegramShareUrl(currentMessage()), "_blank", "noopener");
+          });
+
+          copyButton.addEventListener("click", async () => {
+            updatePreview();
+            const message = currentMessage();
+
+            try {
+              await navigator.clipboard.writeText(message);
+              setStatus("Ответ скопирован. Можно вставить его в чат.");
+            } catch (error) {
+              setStatus("Не удалось скопировать автоматически. Выдели текст справа.");
+            }
+          });
+
+          updatePreview();
+        }
+
+        window.BasketFlowFeedback = {
+          buildFeedbackMessage,
+          buildTelegramShareUrl
+        };
+
+        initialize();
+      })();
+    </script>
+  </body>
+</html>
