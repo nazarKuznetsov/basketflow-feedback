@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="basketflow-feedback-url"
+      content="https://nazarkuznetsov.github.io/basketflow-feedback/"
+    />
     <title>Фидбэк по BasketFlow</title>
     <style>
       :root {
@@ -516,9 +520,43 @@
           ].join("\n");
         }
 
-        function buildTelegramShareUrl(message) {
-          const params = new URLSearchParams({ text: message });
+        function buildNativeShareData(message) {
+          return { text: message };
+        }
+
+        function resolveFeedbackPageUrl() {
+          const configuredUrl = document
+            .querySelector('meta[name="basketflow-feedback-url"]')
+            ?.content.trim();
+          if (configuredUrl) {
+            return configuredUrl;
+          }
+
+          const currentUrl = window.location.href;
+          if (currentUrl.startsWith("https://") || currentUrl.startsWith("http://")) {
+            return currentUrl.split("#")[0];
+          }
+
+          return "https://nazarkuznetsov.github.io/basketflow-feedback/";
+        }
+
+        function buildTelegramShareUrl(message, pageUrl) {
+          const params = new URLSearchParams({ url: pageUrl, text: message });
           return `https://t.me/share/url?${params.toString()}`;
+        }
+
+        async function shareFeedback(message) {
+          if (navigator.share) {
+            await navigator.share(buildNativeShareData(message));
+            return "native";
+          }
+
+          const popup = window.open(
+            buildTelegramShareUrl(message, resolveFeedbackPageUrl()),
+            "_blank",
+            "noopener"
+          );
+          return popup ? "telegram-url" : "blocked-popup";
         }
 
         function setStatus(message) {
@@ -577,9 +615,26 @@
           form.addEventListener("input", updatePreview);
           form.addEventListener("change", updatePreview);
 
-          sendButton.addEventListener("click", () => {
+          sendButton.addEventListener("click", async () => {
             updatePreview();
-            window.open(buildTelegramShareUrl(currentMessage()), "_blank", "noopener");
+            sendButton.disabled = true;
+
+            try {
+              const result = await shareFeedback(currentMessage());
+              if (result === "native") {
+                setStatus("Открылось системное меню отправки.");
+              } else if (result === "telegram-url") {
+                setStatus("Открылось окно Telegram. Выбери чат и отправь сообщение.");
+              } else {
+                setStatus("Браузер заблокировал окно. Скопируй ответ вручную.");
+              }
+            } catch (error) {
+              if (error?.name !== "AbortError") {
+                setStatus("Не удалось открыть отправку. Скопируй ответ вручную.");
+              }
+            } finally {
+              sendButton.disabled = false;
+            }
           });
 
           copyButton.addEventListener("click", async () => {
@@ -599,6 +654,7 @@
 
         window.BasketFlowFeedback = {
           buildFeedbackMessage,
+          buildNativeShareData,
           buildTelegramShareUrl
         };
 
